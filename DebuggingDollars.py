@@ -27,7 +27,7 @@ def get_portfolio(username):
     return jsonify({'Portfolio stocks': portfolio}), 200
 
 # Route to get stock data from Alpha Vantage
-@app.route('/api/stockinfo/<symbol>', methods=['GET'])
+@app.route('/stockinfo/<symbol>', methods=['GET'])
 
 def get_stock_data(symbol):
     
