@@ -18,7 +18,7 @@ def index():
     return "<h1 style='font-size:24px; font-weight:bold;'>Welcome to DebuggingDollars - Your Personal Stock Tracker!</h1>"
 
 # Route to get user portfolio
-@app.route('/api/portfolio/<username>', methods=['GET'])
+@app.route('/portfolio/<username>', methods=['GET'])
 
 def get_portfolio(username):
     portfolio = users_portfolio.get(username, [])
