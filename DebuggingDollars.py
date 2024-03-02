@@ -12,7 +12,7 @@ users_portfolio = {
 # Index route for the homepage
 @app.route('/')
 def index():
-    return "<h1 style='font-size:24px; font-weight:bold;'>Welcome to DebuggingDollars - Your Personal Stock Tracker!</h1>"
+    return "Welcome to DebuggingDollars - Your Personal Stock Tracker!"
 
 # Route to get user portfolio
 @app.route('/portfolio/<username>', methods=['GET'])
