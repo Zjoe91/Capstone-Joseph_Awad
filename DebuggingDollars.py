@@ -15,7 +15,7 @@ def index():
     return "Welcome to DebuggingDollars - Your Personal Stock Tracker!"
 
 # Route to get user portfolio
-@app.route('/portfolio/<username>', methods=['GET'])
+@app.route('/stocklist/<username>', methods=['GET'])
 
 def get_portfolio(username):
     portfolio = users_portfolio.get(username, [])
