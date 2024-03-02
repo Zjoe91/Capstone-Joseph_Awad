@@ -5,10 +5,7 @@ app = Flask(__name__)
 
 # Mock database of user portfolios
 users_portfolio = {
-    'user1': {'AAPL': 10, 'GOOGL': 5, 'MSFT': 15},  
-    'user2': {'TSLA': 8, 'AMZN': 4, 'META': 20},
-    'user3': {'NFLX': 10, 'DIS': 5, 'BABA': 12}, 
-    'user4': {'META': 10, 'TWTR': 5, 'SNAP': 15}, 
+    'user1': {'AAPL': 10, 'GOOGL': 5, 'MSFT': 15},   
 }
 
 
