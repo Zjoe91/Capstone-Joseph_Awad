@@ -18,10 +18,37 @@ def index():
 @app.route('/portfolioinfo/<username>', methods=['GET'])
 
 def get_portfolio(username):
-    portfolio = users_portfolio.get(username, [])
-    if not portfolio:
-        return make_response(jsonify({'error': 'User not found'}), 404)
-    return jsonify({'Portfolio stocks': portfolio}), 200
+    if username not in users_portfolio:
+        return jsonify({'error': 'User not found'}), 404
+
+    users_portfolio_data = users_portfolio[username]
+    total_value = 0
+    portfolio_data = {}
+
+    for symbol, quantity in users_portfolio_data.items():
+        stock_data_response = requests.get("https://www.alphavantage.co/query", params={
+            'function': 'GLOBAL_QUOTE',
+            'symbol': symbol,
+            'apikey': 'QLWHWRGDCN87D8TT'
+        })
+        if stock_data_response.status_code != 200:
+            return jsonify({'error': 'Failed to fetch stock data'}), stock_data_response.status_code
+
+        stock_data = stock_data_response.json()
+        if 'Error Message' in stock_data:
+            return jsonify({'error': 'Invalid or unrecognized stock symbol'}), 404
+
+        stock_data = stock_data['Global Quote']
+        price = float(stock_data['05. price'])
+        total_value += price * quantity
+        portfolio_data[symbol] = {
+            'quantity': quantity,
+            'value': price * quantity
+        }
+
+    return jsonify({'total_value': total_value,'portfolio': portfolio_data}), 200
+
+
 
 # Route to get stock data from Alpha Vantage
 @app.route('/stockinfo/<symbol>', methods=['GET'])
