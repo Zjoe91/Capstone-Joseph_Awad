@@ -96,18 +96,19 @@ def get_stock_data(symbol):
     daily_timeseries = daily_data.get('Time Series (Daily)', {})
     daily_result = []
     for date, values in list(daily_timeseries.items())[:5]:  # Get the latest 5 days of stock data
-        daily_result.append({
-            'date': date,
-            'open': values['1. open'],
-            'high': values['2. high'],
-            'low': values['3. low'],
-            'close': values['4. close'],
+        daily_result.append([
+            date,
+            {'open': round(float(values['1. open']), 2),
+            'high': round(float(values['2. high']), 2),
+            'low': round(float(values['3. low']), 2),
+            'close': round(float(values['4. close']), 2),
             'volume': values['5. volume'],
-        })
+            }
+        ])
 
 
 
-    return jsonify({'symbol': symbol, 'daily_data': daily_result}), 200 # Return the stock symbol and daily stock data for the last 5 days
+    return jsonify(daily_result), 200 # Return the stock symbol and daily stock data for the last 5 days
 
 if __name__ == '__main__':
     app.run(debug=True) ## Run the Flask application
