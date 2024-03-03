@@ -6,7 +6,7 @@ app = Flask(__name__)   # initializing the flask app
 # Mock database of user portfolios
 # This is a simple in-memory structure to simulate user stock portfolios
 users_portfolio = {
-    'user1': {'AAPL': 10, 'GOOGL': 5, 'MSFT': 15},   
+    'user1': {'AAPL': 10, 'GOOGL': 5, 'AMZN': 3},   
 }
 
 
