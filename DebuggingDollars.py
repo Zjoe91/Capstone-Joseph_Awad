@@ -57,7 +57,7 @@ def get_portfolio(username):
             'value': price * quantity
         }
 
-    return jsonify({'total_value': total_value,'portfolio': portfolio_data}), 200 # Return the total portfolio value and individual stock values
+    return jsonify({'total_value': total_value,'symbols': portfolio_data}), 200 # Return the total portfolio value and individual stock values
 
 
 
