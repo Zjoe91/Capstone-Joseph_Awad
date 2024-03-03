@@ -111,4 +111,4 @@ def get_stock_data(symbol):
     return jsonify(daily_result), 200 # Return the stock symbol and daily stock data for the last 5 days
 
 if __name__ == '__main__':
-    app.run(debug=True) ## Run the Flask application
+    app.run(debug=False) ## Run the Flask application
