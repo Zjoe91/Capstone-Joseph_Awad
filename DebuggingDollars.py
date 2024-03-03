@@ -98,11 +98,11 @@ def get_stock_data(symbol):
     for date, values in list(daily_timeseries.items())[:5]:  # Get the latest 5 days of stock data
         daily_result.append([
             date,
-            {'open': round(float(values['1. open']), 2),
-            'high': round(float(values['2. high']), 2),
-            'low': round(float(values['3. low']), 2),
-            'close': round(float(values['4. close']), 2),
-            'volume': int(values['5. volume']),
+            {'1. open': round(float(values['1. open']), 2),
+            '2. high': round(float(values['2. high']), 2),
+            '3. low': round(float(values['3. low']), 2),
+            '4. close': round(float(values['4. close']), 2),
+            '5. volume': int(values['5. volume']),
             }
         ])
 
