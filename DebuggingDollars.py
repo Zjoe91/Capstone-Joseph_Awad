@@ -5,7 +5,7 @@ app = Flask(__name__)   # initializing the flask app
 
 # Mock database of user portfolios
 # This is a simple in-memory structure to simulate user stock portfolios
-users_portfolio = {
+user_databse = {
     'user1': {'AAPL': 10, 'GOOGL': 5, 'AMZN': 3},   
 }
 
@@ -24,10 +24,10 @@ def index():
 # The portfolio value is calculated by fetching real-time stock prices from an external API.
 def get_portfolio(username):
     # Check if the username exists in the mock database
-    if username not in users_portfolio:
+    if username not in user_databse:
         return jsonify({'error': 'User not found'}), 404
 
-    users_portfolio_data = users_portfolio[username]
+    users_portfolio_data = user_databse[username]
     total_value = 0 # Total value of the portfolio
     portfolio_data = {} #initialize response dictionary for portfolio data
 
