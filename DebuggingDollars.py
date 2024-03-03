@@ -51,10 +51,10 @@ def get_portfolio(username):
         # Extract the stock price from the API response and calculate the total value of the stock holding
         stock_data = stock_data['Global Quote']
         price = float(stock_data['05. price']) # Current stock price
-        total_value += price * quantity
+        total_value += round((price * quantity),2) # Calculate the total value of the stock holding
         portfolio_data[symbol] = {
             'quantity': quantity,
-            'value': price * quantity
+            'value': round((price * quantity),2)
         }
 
     return jsonify({'total_value': total_value,'symbols': portfolio_data}), 200 # Return the total portfolio value and individual stock values
@@ -102,7 +102,7 @@ def get_stock_data(symbol):
             'high': round(float(values['2. high']), 2),
             'low': round(float(values['3. low']), 2),
             'close': round(float(values['4. close']), 2),
-            'volume': values['5. volume'],
+            'volume': int(values['5. volume']),
             }
         ])
 
