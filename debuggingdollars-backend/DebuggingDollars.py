@@ -1,7 +1,9 @@
 from flask import Flask, jsonify, request, make_response #importing flask, jsonify, request, make_response
 import requests     #importing requests to make http requests and get data from the web
+from flask_cors import CORS #importing flask_cors to enable cross-origin resource sharing
 
 app = Flask(__name__)   # initializing the flask app
+CORS(app)   # enabling cross-origin resource sharing for the app
 
 # Mock database of user portfolios
 # This is a simple in-memory structure to simulate user stock portfolios
