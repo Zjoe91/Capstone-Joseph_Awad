@@ -9,3 +9,5 @@ function StockInfo({ symbol }) {
       .then((data) => setStockData(data))
       .catch((error) => console.error("Error:", error));
   }, [symbol]);
+
+  if (!stockData) return <div>Loading stock information...</div>;
