@@ -1,17 +1,22 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react"; // import useState and useEffect from react
 
+// create a function called StockInfo that takes in a symbol as a prop
 function StockInfo({ symbol }) {
+  // create a state variable called stockData and a function to update it called setStockData
   const [stockData, setStockData] = useState(null);
 
+  // use the useEffect hook to fetch stock information for the given symbol
   useEffect(() => {
-    fetch(`https://mscbt-integration.ew.r.appspot.com/stockinfo/${symbol}`) // Adjust the URL based on your actual backend URL
+    fetch(`https://mscbt-integration.ew.r.appspot.com/stockinfo/${symbol}`)
       .then((response) => response.json())
       .then((data) => setStockData(data))
       .catch((error) => console.error("Error:", error));
   }, [symbol]);
 
+  // if stockData is null, return a loading message
   if (!stockData) return <div>Loading stock information...</div>;
 
+  // otherwise, return the stock information
   return (
     <div>
       <h2>Stock Information for {symbol}</h2>
@@ -28,4 +33,5 @@ function StockInfo({ symbol }) {
   );
 }
 
+// export the StockInfo function
 export default StockInfo;
