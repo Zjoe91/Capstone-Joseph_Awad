@@ -1,0 +1,16 @@
+Milestone1:
+
+FrontEnd:
+_provide sample react app to check how the stucture is built 
+_what componenets or valiables must match between the backend and frontend 
+_how to use CORS
+_my frontend still not working showing connection refused, why ?
+
+BackEnd:
+
+_how to convert str to float and round it to 2 decimals
+_show me how to initialize a get request 
+_should i inlcude cors in requiremets .txt
+
+Deplpoyment:
+_both back end and front end deployed, but when i open the link it only shows loading portfolio info and loading stock info , no data appears
