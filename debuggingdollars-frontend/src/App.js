@@ -1,7 +1,8 @@
-import React from "react";
-import PortfolioInfo from "./components/PortfolioInfo";
-import StockInfo from "./components/StockInfo";
+import React from "react"; // Import the React library
+import PortfolioInfo from "./components/PortfolioInfo"; // Import the PortfolioInfo component
+import StockInfo from "./components/StockInfo"; // Import the StockInfo component
 
+// Create a function called App
 function App() {
   return (
     <div>
@@ -11,4 +12,5 @@ function App() {
   );
 }
 
+// Export the App function
 export default App;
