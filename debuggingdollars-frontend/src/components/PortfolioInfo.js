@@ -6,7 +6,7 @@ function PortfolioInfo({ username }) {
   useEffect(() => {
     fetch(
       `https://mscbt-integration.ew.r.appspot.com/portfolioinfo/${username}`
-    ) // Adjust the URL based on your actual backend URL
+    )
       .then((response) => response.json())
       .then((data) => setPortfolio(data))
       .catch((error) => console.error("Error:", error));
