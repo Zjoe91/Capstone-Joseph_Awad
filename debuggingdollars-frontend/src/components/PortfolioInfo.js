@@ -1,8 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react"; // import useState and useEffect from react
 
+// create a function called PortfolioInfo that takes in a username as a prop
 function PortfolioInfo({ username }) {
+  // create a state variable called portfolio and a function to update it called setPortfolio
   const [portfolio, setPortfolio] = useState(null);
 
+  // use the useEffect hook to fetch portfolio information for the given username
   useEffect(() => {
     fetch(
       `https://mscbt-integration.ew.r.appspot.com/portfolioinfo/${username}`
@@ -12,8 +15,10 @@ function PortfolioInfo({ username }) {
       .catch((error) => console.error("Error:", error));
   }, [username]);
 
+  // if portfolio is null, return a loading message
   if (!portfolio) return <div>Loading portfolio information...</div>;
 
+  // otherwise, return the portfolio information
   return (
     <div>
       <h2>{username}'s Portfolio</h2>
@@ -31,4 +36,5 @@ function PortfolioInfo({ username }) {
   );
 }
 
+// export the PortfolioInfo function
 export default PortfolioInfo;
