@@ -7,10 +7,11 @@ CORS(app)   # enabling cross-origin resource sharing for the app
 
 # Mock database of user portfolios
 # This is a simple in-memory structure to simulate user stock portfolios
-user_databse = {
-    'user1': {'AAPL': 10, 'GOOGL': 5, 'AMZN': 3},   
-}
+def user_databse():
 
+    return{
+        'user1': {'AAPL': 10, 'GOOGL': 5, 'AMZN': 3},   
+        }
 
 # Index route for the homepage
 # This route returns a welcome message when accessed
@@ -25,11 +26,12 @@ def index():
 # It accepts a username as a parameter and returns the user's stock portfolio, including the current value of each stock and the total portfolio value.
 # The portfolio value is calculated by fetching real-time stock prices from an external API.
 def get_portfolio(userID):
+    user_data = user_databse()
     # Check if the username exists in the mock database
-    if userID not in user_databse:
+    if userID not in user_data:
         return jsonify({'error': 'User not found'}), 404
 
-    users_portfolio_data = user_databse[userID]
+    users_portfolio_data = user_data[userID]
     total_value = 0 # Total value of the portfolio
     portfolio_data = {} #initialize response dictionary for portfolio data
 
