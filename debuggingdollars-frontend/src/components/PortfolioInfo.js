@@ -7,9 +7,7 @@ function PortfolioInfo({ username }) {
 
   // use the useEffect hook to fetch portfolio information for the given username
   useEffect(() => {
-    fetch(
-      `https://mscbt-integration.ew.r.appspot.com/portfolioinfo/${username}`
-    )
+    fetch(`https://mscbt-integration.ew.r.appspot.com/${username}`)
       .then((response) => response.json())
       .then((data) => setPortfolio(data))
       .catch((error) => console.error("Error:", error));
