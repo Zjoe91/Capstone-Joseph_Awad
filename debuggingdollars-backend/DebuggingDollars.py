@@ -20,16 +20,16 @@ def index():
 
 # Route to get user portfolio
 # This route accepts a username parameter and returns the stock portfolio for that user
-@app.route('/portfolioinfo/<username>', methods=['GET'])
+@app.route('/<userID>', methods=['GET'])
 
 # It accepts a username as a parameter and returns the user's stock portfolio, including the current value of each stock and the total portfolio value.
 # The portfolio value is calculated by fetching real-time stock prices from an external API.
-def get_portfolio(username):
+def get_portfolio(userID):
     # Check if the username exists in the mock database
-    if username not in user_databse:
+    if userID not in user_databse:
         return jsonify({'error': 'User not found'}), 404
 
-    users_portfolio_data = user_databse[username]
+    users_portfolio_data = user_databse[userID]
     total_value = 0 # Total value of the portfolio
     portfolio_data = {} #initialize response dictionary for portfolio data
 
