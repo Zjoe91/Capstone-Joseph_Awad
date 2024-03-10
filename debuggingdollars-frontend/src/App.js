@@ -1,16 +1,20 @@
-import React from "react"; // Import the React library
-import PortfolioInfo from "./components/PortfolioInfo"; // Import the PortfolioInfo component
-import StockInfo from "./components/StockInfo"; // Import the StockInfo component
+import React, { useState } from "react";
+import PortfolioInfo from "./components/PortfolioInfo";
+import StockInfo from "./components/StockInfo";
 
-// Create a function called App
 function App() {
+  const [selectedSymbol, setSelectedSymbol] = useState(null);
+
   return (
     <div>
-      <PortfolioInfo username="user1" />
-      <StockInfo symbol="AAPL" />
+      <PortfolioInfo
+        username="user1"
+        onStockSelect={setSelectedSymbol}
+        selectedSymbol={selectedSymbol}
+      />
+      {selectedSymbol && <StockInfo symbol={selectedSymbol} />}
     </div>
   );
 }
 
-// Export the App function
 export default App;
