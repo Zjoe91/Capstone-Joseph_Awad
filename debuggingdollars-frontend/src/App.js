@@ -4,23 +4,54 @@ import StockInfo from "./components/StockInfo";
 
 function App() {
   const [selectedSymbol, setSelectedSymbol] = useState(null);
+  const [username, setUsername] = useState("");
+  const [inputUsername, setInputUsername] = useState("");
+  const [userNotFound, setUserNotFound] = useState(false); // State to handle user not found
 
-  // Define the inline style for the grid container
   const gridContainerStyle = {
+    // Grid container style reintroduced
     display: "grid",
-    gridTemplateColumns: "1fr 2fr", // Adjust the ratio between PortfolioInfo and StockInfo as needed
-    gap: "20px", // Space between grid items
-    padding: "20px", // Padding around the entire grid
+    gridTemplateColumns: "1fr 2fr",
+    gap: "20px",
+    padding: "20px",
+  };
+
+  const handleUsernameChange = (e) => {
+    setInputUsername(e.target.value);
+    if (userNotFound) setUserNotFound(false); // Reset user not found state on input change
+  };
+
+  const handleFetchPortfolio = () => {
+    setUsername(inputUsername);
+  };
+
+  const handleUserNotFound = () => {
+    setUsername("");
+    setSelectedSymbol(null);
+    setUserNotFound(true);
   };
 
   return (
-    <div style={gridContainerStyle}>
-      <PortfolioInfo
-        username="user1"
-        onStockSelect={setSelectedSymbol}
-        selectedSymbol={selectedSymbol}
+    <div>
+      <input
+        type="text"
+        placeholder="Enter username..."
+        value={inputUsername}
+        onChange={handleUsernameChange}
       />
-      {selectedSymbol && <StockInfo symbol={selectedSymbol} />}
+      <button onClick={handleFetchPortfolio}>Fetch Portfolio</button>
+      {userNotFound && <div>User does not exist.</div>}
+      {!userNotFound && username && (
+        <div style={gridContainerStyle}>
+          <PortfolioInfo
+            username={username}
+            onStockSelect={setSelectedSymbol}
+            selectedSymbol={selectedSymbol}
+            onUserNotFound={handleUserNotFound}
+          />
+          {selectedSymbol && <StockInfo symbol={selectedSymbol} />}
+        </div>
+      )}
     </div>
   );
 }
