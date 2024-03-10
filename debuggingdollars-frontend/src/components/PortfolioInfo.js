@@ -1,17 +1,28 @@
 import React, { useState, useEffect } from "react"; // import useState and useEffect from react
 
 // create a function called PortfolioInfo that takes in a username as a prop
-function PortfolioInfo({ username, onStockSelect, selectedSymbol }) {
+function PortfolioInfo({
+  username,
+  onStockSelect,
+  selectedSymbol,
+  onUserNotFound,
+}) {
   // create a state variable called portfolio and a function to update it called setPortfolio
   const [portfolio, setPortfolio] = useState(null);
 
   // use the useEffect hook to fetch portfolio information for the given username
   useEffect(() => {
-    fetch(`http://localhost:5000/${username}`)
-      .then((response) => response.json())
+    fetch(`https://mscbt-integration.ew.r.appspot.com/${username}`)
+      .then((response) => {
+        if (!response.ok) throw new Error("User not found");
+        return response.json();
+      })
       .then((data) => setPortfolio(data))
-      .catch((error) => console.error("Error:", error));
-  }, [username]);
+      .catch((error) => {
+        console.error("Error:", error);
+        onUserNotFound(); // Call the passed function when the user is not found
+      });
+  }, [username, onUserNotFound]);
 
   // if portfolio is null, return a loading message
   if (!portfolio) return <div>Loading portfolio information...</div>;
