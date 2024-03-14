@@ -117,5 +117,78 @@ def get_stock_data(symbol):
 
     return jsonify(daily_result), 200 # Return the stock symbol and daily stock data for the last 5 days
 
+# this route is used to modify the user's portfolio by adding or removing stocks
+@app.route('/modifyPortfolio', methods=['POST'])
+
+# This route accepts a JSON payload with the stock symbol, quantity, and action (add or remove) to modify the user's portfolio in oracle database
+def modify_portfolio():
+    data = request.json
+    userid = 1
+    stocksymbol = data.get('stocksymbol')
+    quantity = data.get('quantity')
+    action = data.get('action')  # 'add' or 'remove'
+
+    with connection.cursor() as cursor:
+        if action == 'add':
+            # Check if the stock already exists in the user's portfolio
+            cursor.execute("SELECT QUANTITY FROM user_stocks WHERE USERID = :userid AND STOCKSYMBOL = :stocksymbol", userid=userid, stocksymbol=stocksymbol)
+            result = cursor.fetchone()
+
+            if result:
+                # Update quantity if stock exists
+                new_quantity = result[0] + quantity
+                cursor.execute("UPDATE user_stocks SET QUANTITY = :new_quantity WHERE USERID = :userid AND STOCKSYMBOL = :stocksymbol", new_quantity=new_quantity, userid=userid, stocksymbol=stocksymbol)
+            else:
+                # Insert new stock into the portfolio
+                cursor.execute("INSERT INTO user_stocks (USERID, STOCKSYMBOL, QUANTITY) VALUES (:userid, :stocksymbol, :quantity)", userid=userid, stocksymbol=stocksymbol, quantity=quantity)
+
+        elif action == 'remove':
+            # Check if the stock exists and the quantity is sufficient
+            cursor.execute("SELECT QUANTITY FROM user_stocks WHERE USERID = :userid AND STOCKSYMBOL = :stocksymbol", userid=userid, stocksymbol=stocksymbol)
+            result = cursor.fetchone()
+
+            if result and result[0] >= quantity:
+                # If quantity is equal to what's in the portfolio, remove the stock entry
+                if result[0] == quantity:
+                    cursor.execute("DELETE FROM user_stocks WHERE USERID = :userid AND STOCKSYMBOL = :stocksymbol", userid=userid, stocksymbol=stocksymbol)
+                else:
+                    # Update quantity if stock exists and selling part of it
+                    new_quantity = result[0] - quantity
+                    cursor.execute("UPDATE user_stocks SET QUANTITY = :new_quantity WHERE USERID = :userid AND STOCKSYMBOL = :stocksymbol", new_quantity=new_quantity, userid=userid, stocksymbol=stocksymbol)
+            else:
+                # Stock does not exist or insufficient quantity
+                return jsonify({'error': 'Insufficient stock quantity or stock does not exist'}), 400
+
+        # Commit the changes to the database
+        connection.commit()
+
+    return jsonify({'message': 'Portfolio updated successfully.'}), 200
+
+# Route to search for stock symbols using a query string
+@app.route('/api/searchTickers')
+# This route accepts a query parameter and returns a list of stock symbols and their names that match the query
+def search_tickers():
+    query = request.args.get('query')
+    if not query:
+        return jsonify([])
+
+    # Alpha Vantage API endpoint for symbol search
+    url = "https://www.alphavantage.co/query"
+    params = {
+        "function": "SYMBOL_SEARCH",
+        "keywords": query,
+        "apikey": "QLWHWRGDCN87D8TT"
+    }
+
+    response = requests.get(url, params=params)
+    if response.status_code == 200:
+        data = response.json()
+        # extract and send symbol and name
+        results = [{"symbol": item["1. symbol"], "name": item["2. name"]} for item in data.get("bestMatches", [])]
+        return jsonify(results)
+    else:
+        return jsonify({"error": "Failed to fetch data from Alpha Vantage"}), response.status_code
+
+
 if __name__ == '__main__':
     app.run(debug=False) ## Run the Flask application
