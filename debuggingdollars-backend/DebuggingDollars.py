@@ -130,29 +130,29 @@ def modify_portfolio():
 
     with connection.cursor() as cursor:
         if action == 'add':
-            # Check if the stock already exists in the user's portfolio
+            # Check if the stock already exists in the user's portfolio database
             cursor.execute("SELECT QUANTITY FROM user_stocks WHERE USERID = :userid AND STOCKSYMBOL = :stocksymbol", userid=userid, stocksymbol=stocksymbol)
             result = cursor.fetchone()
 
             if result:
-                # Update quantity if stock exists
+                # Update quantity if stock exists in the database
                 new_quantity = result[0] + quantity
                 cursor.execute("UPDATE user_stocks SET QUANTITY = :new_quantity WHERE USERID = :userid AND STOCKSYMBOL = :stocksymbol", new_quantity=new_quantity, userid=userid, stocksymbol=stocksymbol)
             else:
-                # Insert new stock into the portfolio
+                # Insert new stock into the portfolio in the database
                 cursor.execute("INSERT INTO user_stocks (USERID, STOCKSYMBOL, QUANTITY) VALUES (:userid, :stocksymbol, :quantity)", userid=userid, stocksymbol=stocksymbol, quantity=quantity)
 
         elif action == 'remove':
-            # Check if the stock exists and the quantity is sufficient
+            # Check if the stock exists and the quantity is sufficient in the database
             cursor.execute("SELECT QUANTITY FROM user_stocks WHERE USERID = :userid AND STOCKSYMBOL = :stocksymbol", userid=userid, stocksymbol=stocksymbol)
             result = cursor.fetchone()
 
             if result and result[0] >= quantity:
-                # If quantity is equal to what's in the portfolio, remove the stock entry
+                # If quantity is equal to what's in the portfolio, remove the stock entry from the database
                 if result[0] == quantity:
                     cursor.execute("DELETE FROM user_stocks WHERE USERID = :userid AND STOCKSYMBOL = :stocksymbol", userid=userid, stocksymbol=stocksymbol)
                 else:
-                    # Update quantity if stock exists and selling part of it
+                    # Update quantity if stock exists and removing part of it in the database
                     new_quantity = result[0] - quantity
                     cursor.execute("UPDATE user_stocks SET QUANTITY = :new_quantity WHERE USERID = :userid AND STOCKSYMBOL = :stocksymbol", new_quantity=new_quantity, userid=userid, stocksymbol=stocksymbol)
             else:
