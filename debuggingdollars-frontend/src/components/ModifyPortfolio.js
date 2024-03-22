@@ -8,6 +8,7 @@ function ModifyPortfolio({ onModificationComplete, onError }) {
   const [searchResults, setSearchResults] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
 
+  // Use the useEffect hook to fetch search results
   useEffect(() => {
     if (searchTerm && searchTerm !== stockSymbol) {
       const timeoutId = setTimeout(() => {
@@ -46,6 +47,7 @@ function ModifyPortfolio({ onModificationComplete, onError }) {
     // POST request to the backend
     fetch("http://localhost:5000/modifyPortfolio", {
       method: "POST",
+      credentials: "include",
       headers: {
         "Content-Type": "application/json",
       },
@@ -93,10 +95,10 @@ function ModifyPortfolio({ onModificationComplete, onError }) {
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        margin: "20px 0 20px 20px",
-        maxWidth: "600px",
+        margin: "20px auto 20px auto",
+        maxWidth: "auto",
         padding: "20px",
-        backgroundColor: "#f7f7f7",
+        backgroundColor: "#FFFDD0",
         border: "1px solid #ddd",
         boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
         borderRadius: "8px",
