@@ -272,7 +272,7 @@ def register():
             """, [username])
             result = cursor.fetchone()
             if result[0] > 0:
-                # If the count is greater than 0, the username exists
+                # If the count is greater than 0, the username exists and return an error response 
                 return jsonify({'error': 'Username already exists, please choose another'}), 400
 
             # Username does not exist, proceed with registration
