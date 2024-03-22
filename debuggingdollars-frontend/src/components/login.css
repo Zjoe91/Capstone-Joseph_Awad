@@ -1,0 +1,24 @@
+.App {
+  text-align: center;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; /* Updated font for modern look */
+}
+
+.App-header {
+  background-color: #20232a; /* Slightly adjusted for better contrast */
+  color: #61dafb; /* Brighter color for links and highlights */
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(
+    12px + 2vmin
+  ); /* Slightly larger base font size for readability */
+  padding: 20px; /* Added padding for better spacing */
+}
+
+.App-link {
+  color: #61dafb;
+  text-decoration: none; /* Remove underline from links */
+  font-weight: bold; /* Make links bold */
+}
