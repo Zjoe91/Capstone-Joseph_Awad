@@ -7,7 +7,9 @@ function PortfolioInfo({ onStockSelect, selectedSymbol }) {
   // We no longer need username here, as we will use the hardcoded userID in the API endpoint
   useEffect(() => {
     // Directly access the overview route with the hardcoded userID
-    fetch(`http://localhost:5000/overview`)
+    fetch(`http://localhost:5000/overview`, {
+      credentials: "include",
+    })
       .then((response) => {
         if (!response.ok) throw new Error("Error fetching portfolio");
         return response.json();
