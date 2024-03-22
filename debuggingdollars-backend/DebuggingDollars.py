@@ -1,7 +1,8 @@
-from flask import Flask, jsonify, request, make_response #importing flask, jsonify, request, make_response
+from flask import Flask, jsonify, request, make_response, session #importing flask, jsonify, request, make_response
 import requests     #importing requests to make http requests and get data from the web
 from flask_cors import CORS #importing flask_cors to enable cross-origin resource sharing
 import oracledb #importing oracledb to connect to the Oracle database
+import hashlib #importing hashlib to hash the password
 
 # Oracle database connection details
 un = 'ADMIN'
@@ -11,7 +12,10 @@ pw = 'CapstoneDatabase12345'
 connection = oracledb.connect(user=un, password=pw, dsn=cs)
 
 app = Flask(__name__)   # initializing the flask app
-CORS(app)   # enabling cross-origin resource sharing for the app
+app.secret_key = "debugging_dollars"  # setting the secret key for the app
+app.config['SESSION_COOKIE_SAMESITE'] = 'None' # setting the session cookie samesite to None
+app.config['SESSION_COOKIE_SECURE'] = True # setting the session cookie secure to True
+CORS(app, supports_credentials= True, resources= {r"/*":{"origins":"*"}})   # enabling cross-origin resource sharing for the app
 
 # Index route for the homepage
 # This route returns a welcome message when accessed
@@ -26,8 +30,12 @@ def index():
 # It returns the user's stock portfolio, including the current value of each stock and the total portfolio value.
 # The portfolio value is calculated by fetching real-time stock prices from an external API.
 def get_portfolio():
-    # UserID hardcoded for this milestone
-    userID= 1
+    # Fetch the username from the session
+    userID = session.get('userID')
+    if not userID:
+        # If the username is not found in the session, return an error
+        return jsonify({'error': 'User not logged in'}), 401
+        
     # Make a database query to get the user's stock portfolio
     sql_query= "SELECT STOCKSYMBOL, QUANTITY FROM user_stocks WHERE USERID = :userID"
     # Execute the query and fetch the user's stock portfolio
@@ -64,7 +72,7 @@ def get_portfolio():
             'value': round((price * quantity),2)
         }
 
-    return jsonify({'total_value': total_value,'symbols': portfolio_data}), 200 # Return the total portfolio value and individual stock values
+    return jsonify({'total_value': round((total_value), 2),'symbols': portfolio_data}), 200 # Return the total portfolio value and individual stock values
 
 
 
@@ -123,7 +131,10 @@ def get_stock_data(symbol):
 # This route accepts a JSON payload with the stock symbol, quantity, and action (add or remove) to modify the user's portfolio in oracle database
 def modify_portfolio():
     data = request.json
-    userid = 1
+    userID = session.get('userID')
+    if not userID:
+        # If the username is not found in the session, return an error
+        return jsonify({'error': 'User not logged in'}), 401
     stocksymbol = data.get('stocksymbol')
     quantity = data.get('quantity')
     action = data.get('action')  # 'add' or 'remove'
@@ -131,30 +142,30 @@ def modify_portfolio():
     with connection.cursor() as cursor:
         if action == 'add':
             # Check if the stock already exists in the user's portfolio database
-            cursor.execute("SELECT QUANTITY FROM user_stocks WHERE USERID = :userid AND STOCKSYMBOL = :stocksymbol", userid=userid, stocksymbol=stocksymbol)
+            cursor.execute("SELECT QUANTITY FROM user_stocks WHERE USERID = :userid AND STOCKSYMBOL = :stocksymbol", userid=userID, stocksymbol=stocksymbol)
             result = cursor.fetchone()
 
             if result:
                 # Update quantity if stock exists in the database
                 new_quantity = result[0] + quantity
-                cursor.execute("UPDATE user_stocks SET QUANTITY = :new_quantity WHERE USERID = :userid AND STOCKSYMBOL = :stocksymbol", new_quantity=new_quantity, userid=userid, stocksymbol=stocksymbol)
+                cursor.execute("UPDATE user_stocks SET QUANTITY = :new_quantity WHERE USERID = :userid AND STOCKSYMBOL = :stocksymbol", new_quantity=new_quantity, userid=userID, stocksymbol=stocksymbol)
             else:
                 # Insert new stock into the portfolio in the database
-                cursor.execute("INSERT INTO user_stocks (USERID, STOCKSYMBOL, QUANTITY) VALUES (:userid, :stocksymbol, :quantity)", userid=userid, stocksymbol=stocksymbol, quantity=quantity)
+                cursor.execute("INSERT INTO user_stocks (USERID, STOCKSYMBOL, QUANTITY) VALUES (:userid, :stocksymbol, :quantity)", userid=userID, stocksymbol=stocksymbol, quantity=quantity)
 
         elif action == 'remove':
             # Check if the stock exists and the quantity is sufficient in the database
-            cursor.execute("SELECT QUANTITY FROM user_stocks WHERE USERID = :userid AND STOCKSYMBOL = :stocksymbol", userid=userid, stocksymbol=stocksymbol)
+            cursor.execute("SELECT QUANTITY FROM user_stocks WHERE USERID = :userid AND STOCKSYMBOL = :stocksymbol", userid=userID, stocksymbol=stocksymbol)
             result = cursor.fetchone()
 
             if result and result[0] >= quantity:
                 # If quantity is equal to what's in the portfolio, remove the stock entry from the database
                 if result[0] == quantity:
-                    cursor.execute("DELETE FROM user_stocks WHERE USERID = :userid AND STOCKSYMBOL = :stocksymbol", userid=userid, stocksymbol=stocksymbol)
+                    cursor.execute("DELETE FROM user_stocks WHERE USERID = :userid AND STOCKSYMBOL = :stocksymbol", userid=userID, stocksymbol=stocksymbol)
                 else:
                     # Update quantity if stock exists and removing part of it in the database
                     new_quantity = result[0] - quantity
-                    cursor.execute("UPDATE user_stocks SET QUANTITY = :new_quantity WHERE USERID = :userid AND STOCKSYMBOL = :stocksymbol", new_quantity=new_quantity, userid=userid, stocksymbol=stocksymbol)
+                    cursor.execute("UPDATE user_stocks SET QUANTITY = :new_quantity WHERE USERID = :userid AND STOCKSYMBOL = :stocksymbol", new_quantity=new_quantity, userid=userID, stocksymbol=stocksymbol)
             else:
                 # Stock does not exist or insufficient quantity
                 return jsonify({'error': 'Insufficient stock quantity or stock does not exist'}), 400
@@ -188,6 +199,125 @@ def search_tickers():
         return jsonify(results)
     else:
         return jsonify({"error": "Failed to fetch data from Alpha Vantage"}), response.status_code
+
+
+def hash_value(string):
+    hash = hashlib.sha1()
+    hash.update(string.encode())
+    return hash.hexdigest()
+
+#login route to autheticate the user
+@app.route('/login', methods=['POST'])
+
+#check authetication for username and password from users table in oracle database
+def login():
+    data = request.get_json()
+    
+    # Check for required data first
+    if "username" not in data or "password" not in data:
+        return make_response(jsonify({'error': 'Username and password are required'}), 400)
+    
+    username = data['username']
+    password = hash_value(data['password'])  # Ensure this is secure hashing
+    
+    with connection.cursor() as cursor:
+        # Correct parameter passing method depends on your database connector
+        cursor.execute("SELECT userID, username FROM users WHERE USERNAME = :username AND PASSWORD = :password", (username, password))
+        user = cursor.fetchone()
+        
+        if user:
+            session.modified = True
+            session.permanent = True
+            session['userID'] = user[0]  # Set the session with the actual username
+            return jsonify({"userID": session["userID"], "logged_in": True}), 200
+        else:
+            return make_response(jsonify({'error': 'Invalid username or password'}), 401)
+
+#check if user stil logged in
+@app.route('/checklogin', methods=['GET'])
+#check if the user is logged in by checking if the username is in the session
+def check_login():
+    if "userid" in session:
+        userID = session["userID"]
+        return jsonify({"userID": userID, "logged_in": True}), 200
+    else:
+        return jsonify({"message": "not logged in, OR NO COOKIE BEING ATTACHED"}), 400
+    
+#logout route to logout the user
+@app.route('/logout', methods=['POST'])
+# if the user in the session when logging out, it removes the user from the session and returns a message
+def logout():
+    if "userID" in session: 
+        session.pop("userID")
+        return jsonify({"message": "Logged out successfully"}), 200
+
+#register route to register the user    
+@app.route('/register', methods=['POST'])
+# this serves for as registration as it checks if the username already exists in the database and if not, it registers the user (username is unique)
+def register():
+    data = request.get_json()
+    
+    # Check for required data first
+    if "username" not in data or "password" not in data:
+        return make_response(jsonify({'error': 'Username and password are required'}), 400)
+    
+    username = data['username']
+    password = hash_value(data['password'])  # Assuming hash_value is a function you've defined elsewhere
+
+    try:
+        with connection.cursor() as cursor:
+            # First, check if the username already exists
+            cursor.execute("""
+                SELECT COUNT(*) FROM users WHERE username = :username
+            """, [username])
+            result = cursor.fetchone()
+            if result[0] > 0:
+                # If the count is greater than 0, the username exists
+                return jsonify({'error': 'Username already exists, please choose another'}), 400
+
+            # Username does not exist, proceed with registration
+            cursor.execute("""
+                INSERT INTO users (username, password)
+                VALUES (:username, :password)
+            """, [username, password])
+        connection.commit()
+        return jsonify({'message': 'User registered successfully'}), 201
+    
+    except oracledb.DatabaseError as e:
+        # Simple error handling, you might want to log the error or handle specific exceptions
+        return jsonify({'error': 'Database error occurred'}), 500
+
+# Route to fetch the top gainers from the Alpha Vantage API
+@app.route('/api/market-data')
+# This route fetches the top gainers from the Alpha Vantage API and returns the data in a simplified format
+def get_market_data():
+    api_url = "https://www.alphavantage.co/query"
+    api_key = "QLWHWRGDCN87D8TT"
+    params = {
+        "function": "TOP_GAINERS_LOSERS",
+        "apikey": api_key
+    }
+    response = requests.get(api_url, params=params)
+    if response.status_code == 200:
+        data = response.json()
+
+        # Extracting data from the response
+        top_gainers = data.get('top_gainers', [])
+
+        # Simplify data to contain only necessary information
+        simplified_data = []
+        for gainer in top_gainers:
+            simplified_gainer = {
+                "ticker": gainer["ticker"],
+                "price": gainer["price"],
+                "change_amount": gainer["change_amount"],
+                "change_percentage": gainer["change_percentage"]
+            }
+            simplified_data.append(simplified_gainer)
+
+        return jsonify(simplified_data)
+    else:
+        return jsonify({"error": "Failed to fetch market data"}), response.status_code
 
 
 if __name__ == '__main__':
