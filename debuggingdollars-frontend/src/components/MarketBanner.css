@@ -1,0 +1,29 @@
+.market-banner {
+  display: flex;
+  flex-direction: column; /* Stack children vertically */
+  justify-content: center; /* Center children vertically */
+  align-items: center; /* Center children horizontally */
+  width: 100%;
+  background-color: #333; /* Example background color */
+  color: white; /* Example text color */
+  overflow: hidden;
+  white-space: nowrap;
+  height: 100px; /* Adjust based on your needs */
+}
+
+.banner-title {
+  font-size: 20px; /* Adjust based on your needs */
+  font-weight: bold;
+  margin-bottom: 10px; /* Space between the title and the tickers */
+}
+
+.market-data {
+  text-align: center; /* Ensure ticker information is centered */
+  display: flex; /* Use flexbox to help with alignment */
+  justify-content: center; /* Center content horizontally */
+  width: 100%; /* Ensure it takes up the full width of its parent */
+}
+
+.market-data.active {
+  opacity: 1; /* Make active ticker fully visible */
+}
